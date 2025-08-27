@@ -139,10 +139,34 @@
             box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
         }
 
+        /* Loading Spinner */
+        .loading-container {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .spinner {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 6px solid #e3e3e3;
+            border-top: 6px solid #3498db;
+            animation: spin 1s linear infinite;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
         /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
         }
 
         @keyframes slideUp {
@@ -171,15 +195,9 @@
             }
         }
 
-        @keyframes checkmarkDraw {
-            from {
-                opacity: 0;
-                transform: scale(0);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Responsive Design */
@@ -211,7 +229,20 @@
     </style>
 </head>
 <body>
-    <div class="popup-overlay" id="popupOverlay">
+    <!-- Loading Screen -->
+    <div class="popup-overlay" id="loadingOverlay">
+        <div class="popup-container">
+            <div class="loading-container">
+                <div class="spinner"></div>
+            </div>
+            
+            <h2 class="message-title">Submitting...</h2>
+            <p class="message-subtitle">Please wait while we process your request.</p>
+        </div>
+    </div>
+
+    <!-- Success Popup -->
+    <div class="popup-overlay hidden" id="successOverlay">
         <div class="popup-container">
             <button class="close-btn" onclick="closePopup()" aria-label="Close">×</button>
             
@@ -227,27 +258,33 @@
     </div>
 
     <script>
+        // Show loading screen first, then success popup after 2 seconds
+        setTimeout(() => {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const successOverlay = document.getElementById('successOverlay');
+            
+            // Fade out loading screen
+            loadingOverlay.style.animation = 'fadeOut 0.3s ease-out';
+            
+            setTimeout(() => {
+                loadingOverlay.classList.add('hidden');
+                successOverlay.classList.remove('hidden');
+                successOverlay.style.animation = 'fadeIn 0.3s ease-out';
+            }, 300);
+        }, 2000);
+
         function closePopup() {
-            const overlay = document.getElementById('popupOverlay');
+            const overlay = document.getElementById('successOverlay');
+            
             overlay.style.animation = 'fadeOut 0.3s ease-out';
             
             setTimeout(() => {
-                overlay.style.display = 'none';
+                overlay.classList.add('hidden');
             }, 300);
         }
 
-        // Add fadeOut animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeOut {
-                from { opacity: 1; }
-                to { opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
-
         // Optional: Close popup when clicking outside the container
-        document.getElementById('popupOverlay').addEventListener('click', function(e) {
+        document.getElementById('successOverlay').addEventListener('click', function(e) {
             if (e.target === this) {
                 closePopup();
             }
